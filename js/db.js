@@ -8,7 +8,8 @@ const initialData = {
             team1Name: "Chennai Super Kings",
             team2Name: "Mumbai Indians",
             date: "Today, 7:30 PM",
-            status: "upcoming"
+            status: "live",
+            liveScore: "CSK 142/4 (17.3 ov)"
         },
         {
             id: 2,
@@ -26,6 +27,69 @@ const initialData = {
             team1Name: "Rajasthan Royals",
             team2Name: "Sunrisers Hyderabad",
             date: "Tomorrow, 7:30 PM",
+            status: "upcoming"
+        },
+        {
+            id: 4,
+            team1: "DC",
+            team2: "PBKS",
+            team1Name: "Delhi Capitals",
+            team2Name: "Punjab Kings",
+            date: "Tuesday, 7:30 PM",
+            status: "upcoming"
+        },
+        {
+            id: 5,
+            team1: "LSG",
+            team2: "GT",
+            team1Name: "Lucknow Super Giants",
+            team2Name: "Gujarat Titans",
+            date: "Wednesday, 7:30 PM",
+            status: "upcoming"
+        },
+        {
+            id: 6,
+            team1: "CSK",
+            team2: "RCB",
+            team1Name: "Chennai Super Kings",
+            team2Name: "Royal Challengers Bengaluru",
+            date: "Thursday, 7:30 PM",
+            status: "upcoming"
+        },
+        {
+            id: 7,
+            team1: "MI",
+            team2: "RR",
+            team1Name: "Mumbai Indians",
+            team2Name: "Rajasthan Royals",
+            date: "Friday, 7:30 PM",
+            status: "upcoming"
+        },
+        {
+            id: 8,
+            team1: "KKR",
+            team2: "SRH",
+            team1Name: "Kolkata Knight Riders",
+            team2Name: "Sunrisers Hyderabad",
+            date: "Saturday, 3:30 PM",
+            status: "upcoming"
+        },
+        {
+            id: 9,
+            team1: "PBKS",
+            team2: "LSG",
+            team1Name: "Punjab Kings",
+            team2Name: "Lucknow Super Giants",
+            date: "Saturday, 7:30 PM",
+            status: "upcoming"
+        },
+        {
+            id: 10,
+            team1: "GT",
+            team2: "DC",
+            team1Name: "Gujarat Titans",
+            team2Name: "Delhi Capitals",
+            date: "Sunday, 7:30 PM",
             status: "upcoming"
         }
     ],
@@ -115,10 +179,10 @@ const initialData = {
 
 // Seed LocalStorage
 function initDB() {
-    // Auto-wipe everything if the user was on the old International data
-    if (!localStorage.getItem('is_ipl_loaded_v3')) {
+    // Auto-wipe everything if the user was on the old data
+    if (!localStorage.getItem('is_ipl_loaded_v4')) {
         localStorage.clear();
-        localStorage.setItem('is_ipl_loaded_v3', 'true');
+        localStorage.setItem('is_ipl_loaded_v4', 'true');
     }
 
     if (!localStorage.getItem('matches')) {
@@ -127,8 +191,43 @@ function initDB() {
     if (!localStorage.getItem('contests')) {
         localStorage.setItem('contests', JSON.stringify(initialData.contests));
     }
+    
     if (!localStorage.getItem('players')) {
-        localStorage.setItem('players', JSON.stringify(initialData.players));
+        let playersToSave = [...initialData.players];
+        
+        // Auto-generation algorithm for missing matches
+        const roles = ["BAT", "BOWL", "AR", "WK"];
+        initialData.matches.forEach(match => {
+            const matchPlayers = playersToSave.filter(p => p.matchId === match.id);
+            if (matchPlayers.length < 22) {
+                // Generate 11 for team 1
+                for (let i = 1; i <= 11; i++) {
+                    playersToSave.push({
+                        id: parseInt(`${match.id}10${i}`),
+                        matchId: match.id,
+                        name: `${match.team1} Player ${i}`,
+                        team: match.team1,
+                        role: roles[Math.floor(Math.random() * roles.length)],
+                        credits: (Math.random() * 2 + 7.5).toFixed(1), // 7.5 to 9.5
+                        form: (Math.random() * 2 + 7.5).toFixed(1)
+                    });
+                }
+                // Generate 11 for team 2
+                for (let i = 1; i <= 11; i++) {
+                    playersToSave.push({
+                        id: parseInt(`${match.id}20${i}`),
+                        matchId: match.id,
+                        name: `${match.team2} Player ${i}`,
+                        team: match.team2,
+                        role: roles[Math.floor(Math.random() * roles.length)],
+                        credits: (Math.random() * 2 + 7.5).toFixed(1),
+                        form: (Math.random() * 2 + 7.5).toFixed(1)
+                    });
+                }
+            }
+        });
+        
+        localStorage.setItem('players', JSON.stringify(playersToSave));
     }
     if (!localStorage.getItem('joined_contests')) {
         localStorage.setItem('joined_contests', JSON.stringify([]));

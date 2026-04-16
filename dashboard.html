@@ -176,7 +176,9 @@
         matchesGrid.innerHTML = matches.map(match => `
             <a href="match.html?id=${match.id}" class="glass-card match-card">
                 <div class="match-header">
-                    ${match.status === 'upcoming' ? '<span class="badge badge-upcoming">Upcoming</span>' : '<span class="badge badge-live">Live</span>'}
+                    ${match.status === 'upcoming' 
+                        ? '<span class="badge badge-upcoming">Upcoming</span>' 
+                        : '<span class="badge badge-live" style="animation: pulse-red 2s infinite;">Live</span>'}
                 </div>
                 <div class="match-teams">
                     <div class="team">
@@ -189,9 +191,17 @@
                         <span style="font-size: 0.85rem; font-weight: 600; margin-top: 8px;">${match.team2Name}</span>
                     </div>
                 </div>
-                <div class="match-footer">
+                
+                ${match.status === 'live' && match.liveScore ? `
+                <div style="background: rgba(0, 242, 254, 0.1); border: 1px solid rgba(0, 242, 254, 0.3); border-radius: 8px; padding: 10px; margin: 15px 0 5px 0; text-align: center;">
+                    <div style="font-size: 0.75rem; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Live Score</div>
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; color: white; letter-spacing: 1px;">${match.liveScore}</div>
+                </div>
+                ` : ''}
+
+                <div class="match-footer" style="margin-top: 15px;">
                     <span style="font-size: 0.85rem; color: var(--text-secondary);">${match.date}</span>
-                    <button class="btn btn-outline" style="padding: 6px 16px; font-size: 0.85rem;">View</button>
+                    <button class="btn btn-outline" style="padding: 6px 16px; font-size: 0.85rem;">${match.status === 'live' ? 'Enter' : 'View'}</button>
                 </div>
             </a>
         `).join('');

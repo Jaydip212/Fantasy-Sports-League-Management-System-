@@ -107,10 +107,17 @@
             <div class="match-banner">
                 <div style="display: flex; justify-content: center; gap: 32px; align-items: center;">
                     <h2>${match.team1Name}</h2>
-                    <span class="badge badge-upcoming">VS</span>
+                    <span class="badge ${match.status === 'live' ? 'badge-live' : 'badge-upcoming'}">VS</span>
                     <h2>${match.team2Name}</h2>
                 </div>
                 <p style="color: var(--text-secondary); margin-top: 12px;">${match.date}</p>
+                
+                ${match.status === 'live' && match.liveScore ? `
+                <div style="margin-top: 20px; background: rgba(0, 242, 254, 0.1); border: 1px solid rgba(0, 242, 254, 0.4); padding: 15px; border-radius: 12px; display: inline-block;">
+                    <div style="color: var(--accent-primary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;">🔥 Live Score 🔥</div>
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 2rem; color: white;">${match.liveScore}</div>
+                </div>
+                ` : ''}
             </div>
         `;
 
