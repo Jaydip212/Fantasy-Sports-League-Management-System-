@@ -116,9 +116,9 @@ const initialData = {
 // Seed LocalStorage
 function initDB() {
     // Auto-wipe everything if the user was on the old International data
-    if (!localStorage.getItem('is_ipl_loaded_v2')) {
+    if (!localStorage.getItem('is_ipl_loaded_v3')) {
         localStorage.clear();
-        localStorage.setItem('is_ipl_loaded_v2', 'true');
+        localStorage.setItem('is_ipl_loaded_v3', 'true');
     }
 
     if (!localStorage.getItem('matches')) {
