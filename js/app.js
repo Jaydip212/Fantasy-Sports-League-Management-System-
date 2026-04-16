@@ -24,6 +24,7 @@ function renderNavbar() {
                         <a href="my-contests.html" class="nav-link">My Contests</a>
                         <a href="results.html" class="nav-link">Results</a>
                         <a href="profile.html" class="nav-link">Profile</a>
+                        <a href="points-system.html" class="nav-link">Rules</a>
                         ${user.phone === '9999999999' ? '<a href="admin.html" class="nav-link" style="color: var(--accent-danger);">Admin</a>' : ''}
                         <a href="wallet.html" class="wallet-badge" title="Demo Wallet" style="text-decoration:none;">
                             <span>🪙</span> <span id="wallet-balance">₹${user.walletBalance}</span>

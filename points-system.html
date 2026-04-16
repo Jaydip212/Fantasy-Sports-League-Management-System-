@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Points System | CricFantasy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .rules-container {
+            max-width: 800px;
+            margin: 40px auto;
+        }
+
+        .header-title {
+            text-align: center;
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            background: linear-gradient(90deg, #00f2fe, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .points-section {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.8));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .points-section h3 {
+            border-bottom: 2px solid rgba(0, 242, 254, 0.3);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            color: #00f2fe;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+        }
+
+        .rule-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s ease;
+        }
+
+        .rule-row:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .rule-row:last-child {
+            border-bottom: none;
+        }
+
+        .rule-item {
+            font-weight: 500;
+        }
+
+        .rule-pts {
+            font-weight: bold;
+            color: #10b981;
+            font-family: 'Outfit', sans-serif;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 10px;
+            border-radius: 6px;
+        }
+
+        .rule-pts.negative {
+            color: #f43f5e;
+            background: rgba(244, 63, 94, 0.1);
+        }
+
+        .info-box {
+            background: rgba(0, 242, 254, 0.1);
+            border-left: 4px solid #00f2fe;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container rules-container animate-fade-in">
+        <h1 class="header-title">Fantasy Points System</h1>
+
+        <div class="info-box">
+            <strong>Important Note:</strong> The captain gets <strong>2x</strong> the points scored by them in the actual match. The vice-captain gets <strong>1.5x</strong> the points. Keep this in mind when selecting your leaders!
+        </div>
+
+        <div class="points-section">
+            <h3>🏏 Batting Points</h3>
+            <div class="rule-row">
+                <span class="rule-item">Run</span>
+                <span class="rule-pts">+1</span>
+            </div>
+            <div class="rule-row">
+                <span class="rule-item">Boundary Bonus (4s)</span>
+                <span class="rule-pts">+1</span>
+            </div>
+            <div class="rule-row">
+                <span class="rule-item">Six Bonus</span>
+                <span class="rule-pts">+2</span>
+            </div>
+            <div class="rule-row">
+                <span class="rule-item">Half-century Bonus</span>
+                <span class="rule-pts">+8</span>
+            </div>
+            <div class="rule-row">
+                <span class="rule-item">Century Bonus</span>
+                <span class="rule-pts">+16</span>
+            </div>
+            <div class="rule-row">
+                <span class="rule-item">Dismissal for Duck (BAT/WK/AR)</span>
+                <span class="rule-pts negative">-2</span>
+            </div>
+        </div>
+
+        <div class="points-section">
+            <h3>🥎 Bowling Points</h3>
+            <div class="rule-row">
+                <span class="rule-item">Wicket (Excluding run-out)</span>
+                <span class="rule-pts">+25</span>
+            </div>
+            <div class="rule-row">
+                <span class="rule-item">Bonus (LBW / Bowled)</span>
+                <span class="rule-pts">+8</span>
+            </div>
+            <div class="rule-row">
+                <span class="rule-item">3 Wicket Haul Bonus</span>
+                <span class="rule-pts">+4</span>
+            </div>
+            <div class="rule-row">
+                <span class="rule-item">4 Wicket Haul Bonus</span>
+                <span class="rule-pts">+8</span>
+            </div>
+            <div class="rule-row">
+                <span class="rule-item">5 Wicket Haul Bonus</span>
+                <span class="rule-pts">+16</span>
+            </div>
+            <div class="rule-row">
+                <span class="rule-item">Maiden Over</span>
+                <span class="rule-pts">+12</span>
+            </div>
+        </div>
+
+        <div class="points-section">
+            <h3>🧤 Fielding Points</h3>
+            <div class="rule-row">
+                <span class="rule-item">Catch</span>
+                <span class="rule-pts">+8</span>
+            </div>
+            <div class="rule-row">
+                <span class="rule-item">3 Catch Bonus</span>
+                <span class="rule-pts">+4</span>
+            </div>
+            <div class="rule-row">
+                <span class="rule-item">Stumping</span>
+                <span class="rule-pts">+12</span>
+            </div>
+            <div class="rule-row">
+                <span class="rule-item">Run out (Direct hit)</span>
+                <span class="rule-pts">+12</span>
+            </div>
+            <div class="rule-row">
+                <span class="rule-item">Run out (Not a direct hit)</span>
+                <span class="rule-pts">+6</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        requireAuth();
+        renderNavbar();
+    </script>
+</body>
+</html>

@@ -165,6 +165,26 @@
             <button class="btn btn-primary" style="width: 100%; font-size: 1.1rem; padding: 14px;" onclick="processPayment()">Proceed to Pay</button>
         </div>
 
+        <div class="add-funds-box glass-card" style="margin-top: 20px;">
+            <h3 style="margin-bottom: 16px;">Withdraw Winnings 🏦</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 0.9rem;">Withdraw your fantasy winnings directly to your Bank Account / UPI.</p>
+            <input type="number" id="withdraw-amount" class="amt-input" placeholder="Enter Amount (min ₹50)">
+            <button class="btn" style="width: 100%; font-size: 1.1rem; padding: 14px; background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; border-radius: 8px; cursor: pointer; transition: all 0.3s ease;" onclick="initiateWithdraw()" onmouseover="this.style.background='#10b981'; this.style.color='white'" onmouseout="this.style.background='rgba(16, 185, 129, 0.2)'; this.style.color='#10b981'">Withdraw Now</button>
+            <div id="kyc-status" style="margin-top: 10px; font-size: 0.85rem; color: #f43f5e; text-align: center; display: none;">⚠️ KYC Verification Required</div>
+        </div>
+
+        <div id="kyc-modal" style="display:none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(15, 23, 42, 0.95); z-index: 2000; align-items: center; justify-content: center; flex-direction: column;">
+            <div class="glass-card" style="width: 90%; max-width: 400px; padding: 30px; text-align: center;">
+                <h3 style="margin-bottom: 15px;">Verify KYC</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 25px; font-size: 0.9rem;">To withdraw winnings, please submit your Aadhar/PAN details for verification.</p>
+                <div style="border: 2px dashed rgba(255,255,255,0.2); padding: 30px; border-radius: 12px; margin-bottom: 20px; color: var(--text-secondary); cursor: pointer;" onclick="this.innerHTML='<div style=\\\'color:#10b981;font-weight:bold;\\\'>📄 Document Uploaded</div>'">
+                    Click to Upload Document
+                </div>
+                <button class="btn btn-primary" style="width: 100%; margin-bottom: 10px;" onclick="simulateKYC()">Submit for Verification</button>
+                <button class="btn" style="width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.2);" onclick="document.getElementById('kyc-modal').style.display='none'">Cancel</button>
+            </div>
+        </div>
+
         <div class="transaction-list">
             <h3 style="margin-bottom: 16px;">Recent Transactions</h3>
             <div id="tx-container">
@@ -275,6 +295,115 @@
                     loadWalletData();
                 }, 1500);
 
+            }, 2000);
+        }
+
+        function initiateWithdraw() {
+            let amt = parseInt(document.getElementById('withdraw-amount').value);
+            let user = getCurrentUser();
+            
+            if (!amt || amt < 50) {
+                alert("Minimum withdrawal amount is ₹50.");
+                return;
+            }
+            if (amt > user.walletBalance) {
+                alert("Insufficient balance!");
+                return;
+            }
+
+            // Mock KYC Check
+            if (!user.kycVerified) {
+                document.getElementById('kyc-status').style.display = 'block';
+                document.getElementById('kyc-modal').style.display = 'flex';
+                return;
+            }
+
+            // User is verified, proceed to withdraw
+            processWithdrawal(amt, user);
+        }
+
+        function simulateKYC() {
+            const overlay = document.getElementById('payment-overlay');
+            const spinner = document.getElementById('pay-spinner');
+            const success = document.getElementById('pay-success');
+            const status = document.getElementById('pay-status');
+            
+            document.getElementById('kyc-modal').style.display = 'none';
+            overlay.classList.add('active');
+            spinner.style.display = 'block';
+            success.style.display = 'none';
+            status.innerText = "Verifying Aadhaar/PAN Details...";
+
+            setTimeout(() => {
+                spinner.style.display = 'none';
+                success.style.display = 'block';
+                status.innerText = "KYC Verified Successfully!";
+                status.style.color = "#10b981";
+
+                // Update user KYC status
+                let user = getCurrentUser();
+                user.kycVerified = true;
+                let users = JSON.parse(localStorage.getItem('users')) || [];
+                let userIndex = users.findIndex(u => u.id === user.id);
+                if (userIndex !== -1) {
+                    users[userIndex] = user;
+                    localStorage.setItem('users', JSON.stringify(users));
+                }
+                localStorage.setItem('currentUser', JSON.stringify(user));
+
+                setTimeout(() => {
+                    overlay.classList.remove('active');
+                    status.style.color = "white";
+                    document.getElementById('kyc-status').style.display = 'none';
+                    alert("KYC Verified! You can now withdraw your winnings.");
+                }, 1500);
+            }, 2500);
+        }
+
+        function processWithdrawal(amt, user) {
+            const overlay = document.getElementById('payment-overlay');
+            const spinner = document.getElementById('pay-spinner');
+            const success = document.getElementById('pay-success');
+            const status = document.getElementById('pay-status');
+            
+            overlay.classList.add('active');
+            spinner.style.display = 'block';
+            success.style.display = 'none';
+            status.innerText = "Transferring to Bank Account...";
+
+            setTimeout(() => {
+                spinner.style.display = 'none';
+                success.style.display = 'block';
+                status.innerText = "Withdrawal Successful!";
+                status.style.color = "#10b981";
+
+                user.walletBalance -= amt;
+                let users = JSON.parse(localStorage.getItem('users')) || [];
+                let userIndex = users.findIndex(u => u.id === user.id);
+                if (userIndex !== -1) {
+                    users[userIndex] = user;
+                    localStorage.setItem('users', JSON.stringify(users));
+                }
+                localStorage.setItem('currentUser', JSON.stringify(user));
+
+                let txList = getTransactions();
+                txList.push({
+                    id: Date.now(),
+                    userId: user.id,
+                    type: 'debit',
+                    amount: amt,
+                    desc: 'Withdrawn to Bank',
+                    date: new Date().toISOString()
+                });
+                localStorage.setItem('transactions', JSON.stringify(txList));
+
+                setTimeout(() => {
+                    overlay.classList.remove('active');
+                    status.style.color = "white"; 
+                    document.getElementById('withdraw-amount').value = '';
+                    updateWalletUI(); 
+                    loadWalletData();
+                }, 1500);
             }, 2000);
         }
 

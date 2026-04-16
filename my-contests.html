@@ -152,18 +152,20 @@
                 const points = team && team.totalPoints ? team.totalPoints : 0;
                 
                 return `
-                <div class="glass-card my-contest-card animate-fade-in" style="animation-delay: ${index * 0.1}s;">
-                    <div class="mc-match-info">
-                        <span class="badge ${match.status === 'live' ? 'badge-live' : 'badge-upcoming'}">${match.status.toUpperCase()}</span>
-                        <div class="mc-match-title">${match.team1Name} vs ${match.team2Name}</div>
-                        <div class="mc-contest-name">${contest.name} (Prize: ${contest.prizePool})</div>
-                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px;">Match Date: ${match.date}</div>
+                <a href="contest-leaderboard.html?id=${contest.id}" style="text-decoration: none; color: inherit; display: block;">
+                    <div class="glass-card my-contest-card animate-fade-in" style="animation-delay: ${index * 0.1}s;">
+                        <div class="mc-match-info">
+                            <span class="badge ${match.status === 'live' ? 'badge-live' : 'badge-upcoming'}">${match.status.toUpperCase()}</span>
+                            <div class="mc-match-title">${match.team1Name} vs ${match.team2Name}</div>
+                            <div class="mc-contest-name">${contest.name} (Prize: ${contest.prizePool})</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px;">Match Date: ${match.date}</div>
+                        </div>
+                        <div class="mc-points-box">
+                            <span>Team Points</span>
+                            <strong>${points} pts</strong>
+                        </div>
                     </div>
-                    <div class="mc-points-box">
-                        <span>Team Points</span>
-                        <strong>${points} pts</strong>
-                    </div>
-                </div>
+                </a>
                 `;
             });
             
