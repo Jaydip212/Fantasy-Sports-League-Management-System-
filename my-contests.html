@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Contests | CricFantasy</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .page-header {
+            margin: 40px 0 30px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title::before {
+            content: '';
+            display: block;
+            width: 6px;
+            height: 24px;
+            background: var(--accent-primary);
+            border-radius: 4px;
+            box-shadow: 0 0 10px var(--accent-primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255,255,255,0.02);
+            border-radius: var(--radius-lg);
+            border: 1px dashed rgba(255,255,255,0.1);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .my-contest-card {
+            display: flex;
+            justify-content: space-between;
+            padding: 24px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .mc-match-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .mc-match-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: 0.5px;
+        }
+
+        .mc-contest-name {
+            font-size: 0.95rem;
+            color: var(--accent-warning);
+            font-weight: 600;
+        }
+        
+        .mc-points-box {
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            border-radius: var(--radius-sm);
+            padding: 12px 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .mc-points-box span {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .mc-points-box strong {
+            font-size: 1.4rem;
+            color: var(--accent-primary);
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .my-contest-card { display: block; }
+            .mc-points-box { margin-top: 16px; flex-direction: row; justify-content: space-between; align-items: center; }
+            .mc-points-box span { margin-bottom: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container animate-fade-in" style="padding-top: 20px;">
+        <div class="page-header">
+            <h1 class="section-title">My Contests</h1>
+            <a href="dashboard.html" class="btn btn-outline" style="padding: 8px 16px; font-size: 0.85rem;">Browse Matches</a>
+        </div>
+
+        <div id="my-contests-list"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/db.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        requireAuth();
+        renderNavbar(); // Injects the nav
+        
+        const currentUser = getCurrentUser();
+        const joinedContests = getJoinedContests().filter(jc => jc.userId === currentUser.id);
+        const allContests = getContests();
+        const allMatches = getMatches();
+        const userTeams = getUserTeams();
+
+        const containerList = document.getElementById('my-contests-list');
+
+        if (joinedContests.length === 0) {
+            containerList.innerHTML = `
+                <div class="empty-state animate-fade-in">
+                    <div class="empty-icon">🏜️</div>
+                    <h3 style="margin-bottom: 12px;">No Contests Joined Yet</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 24px;">Browse upcoming matches and join mega contests to show up here!</p>
+                    <a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>
+                </div>
+            `;
+        } else {
+            const htmlPieces = joinedContests.map((jc, index) => {
+                const contest = allContests.find(c => c.id === jc.contestId);
+                const match = allMatches.find(m => m.id === contest.matchId);
+                const team = userTeams.find(t => t.id === jc.userTeamId);
+                
+                // Demo simulated points or 0 if not simulated
+                const points = team && team.totalPoints ? team.totalPoints : 0;
+                
+                return `
+                <div class="glass-card my-contest-card animate-fade-in" style="animation-delay: ${index * 0.1}s;">
+                    <div class="mc-match-info">
+                        <span class="badge ${match.status === 'live' ? 'badge-live' : 'badge-upcoming'}">${match.status.toUpperCase()}</span>
+                        <div class="mc-match-title">${match.team1Name} vs ${match.team2Name}</div>
+                        <div class="mc-contest-name">${contest.name} (Prize: ${contest.prizePool})</div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px;">Match Date: ${match.date}</div>
+                    </div>
+                    <div class="mc-points-box">
+                        <span>Team Points</span>
+                        <strong>${points} pts</strong>
+                    </div>
+                </div>
+                `;
+            });
+            
+            containerList.innerHTML = htmlPieces.join('');
+        }
+    </script>
+</body>
+</html>

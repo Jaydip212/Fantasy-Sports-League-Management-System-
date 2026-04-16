@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Team | CricFantasy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .team-creation-bar {
+            background: linear-gradient(90deg, rgba(30, 36, 56, 0.9), rgba(15, 18, 30, 0.95));
+            backdrop-filter: blur(20px);
+            padding: 20px 30px;
+            border-radius: var(--radius-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            position: sticky;
+            top: 90px;
+            z-index: 10;
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 20px rgba(0, 229, 255, 0.1);
+        }
+
+        .stat-badge {
+            text-align: center;
+            position: relative;
+        }
+
+        .stat-badge span {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .stat-badge strong {
+            font-size: 1.6rem;
+            color: var(--text-primary);
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+
+        .player-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: rgba(30, 36, 56, 0.4);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: var(--radius-sm);
+            margin-bottom: 12px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .player-row:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateX(10px);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .player-row.selected {
+            border-color: var(--accent-primary);
+            background: linear-gradient(90deg, rgba(0, 229, 255, 0.1), rgba(0,0,0,0.4));
+            box-shadow: inset 5px 0 0 var(--accent-primary);
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .role-badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.1);
+            color: var(--text-secondary);
+            font-weight: 800;
+            text-transform: uppercase;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .action-area {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .add-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-primary);
+            color: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 900;
+            font-size: 1.4rem;
+            transition: all 0.2s;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+        }
+
+        .player-row.selected .add-btn {
+            background: var(--accent-primary);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            width: 90%;
+            max-width: 500px;
+            border-radius: var(--radius-md);
+            padding: 24px;
+            border: 1px solid var(--border-glass);
+        }
+
+        .cvc-select {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+
+        .cvc-btn {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border-glass);
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .cvc-btn.c-active { background: var(--accent-warning); color: #000; border-color: var(--accent-warning); }
+        .cvc-btn.vc-active { background: var(--accent-secondary); color: #000; border-color: var(--accent-secondary); }
+
+    </style>
+</head>
+<body>
+
+    <div class="container" style="padding-top: 20px;">
+        <h2 style="margin-bottom: 20px;">Select Players</h2>
+
+        <div class="team-creation-bar">
+            <div class="stat-badge">
+                <span>Players</span>
+                <strong><span id="p-count">0</span>/11</strong>
+            </div>
+            <div class="stat-badge">
+                <span>Credits Left</span>
+                <strong><span id="c-left">100</span></strong>
+            </div>
+            <button id="btn-next" class="btn btn-primary" onclick="showCVCModal()" disabled>Next</button>
+        </div>
+
+        <div id="players-list"></div>
+    </div>
+
+    <!-- C/VC Selection Modal -->
+    <div class="modal-overlay" id="cvc-modal">
+        <div class="modal-content animate-fade-in">
+            <h3 style="margin-bottom: 16px;">Choose Captain & Vice Captain</h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 24px;">C gets 2x points, VC gets 1.5x points</p>
+            
+            <div id="cvc-list" style="max-height: 400px; overflow-y: auto; margin-bottom: 24px;"></div>
+            
+            <div style="display: flex; gap: 16px;">
+                <button class="btn btn-outline" style="flex: 1;" onclick="closeCVCModal()">Back</button>
+                <button class="btn btn-primary" style="flex: 1;" id="btn-save-team" onclick="saveTeam()" disabled>Save Team</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/db.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        requireAuth();
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const matchId = parseInt(urlParams.get('id'));
+        if (!matchId) window.location.href = 'dashboard.html';
+
+        const allPlayers = getPlayers().filter(p => p.matchId === matchId);
+        
+        let selectedPlayers = [];
+        let creditsLeft = 100.0;
+        let cId = null;
+        let vcId = null;
+
+        const existingTeam = getUserTeams().find(t => t.matchId === matchId && t.userId === getCurrentUser().id);
+        if (existingTeam) {
+            selectedPlayers = [...existingTeam.playerIds];
+            cId = existingTeam.captainId;
+            vcId = existingTeam.viceCaptainId;
+            const spent = allPlayers.filter(p => selectedPlayers.includes(p.id)).reduce((sum, p) => sum + p.credits, 0);
+            creditsLeft = 100.0 - spent;
+        }
+
+        function renderPlayers() {
+            const list = document.getElementById('players-list');
+            list.innerHTML = allPlayers.map(p => {
+                const isSelected = selectedPlayers.includes(p.id);
+                return `
+                <div class="player-row ${isSelected ? 'selected' : ''}" onclick="togglePlayer(${p.id}, ${p.credits})">
+                    <div class="player-info">
+                        <div>
+                            <div style="font-weight: 600;">${p.name}</div>
+                            <div style="display: flex; gap: 8px; margin-top: 4px;">
+                                <span class="role-badge" style="background: ${p.team==='IND' ? 'rgba(0,100,255,0.2)' : 'rgba(255,200,0,0.2)'}; color: ${p.team==='IND' ? '#6eb6ff' : '#ffda6e'}">${p.team}</span>
+                                <span class="role-badge">${p.role}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="action-area">
+                        <div style="text-align: right; color: var(--text-secondary); font-size: 0.85rem;">
+                            Sel. by 85%<br>
+                            <span style="font-weight: bold; color: var(--text-primary);">${p.credits} CR</span>
+                        </div>
+                        <div class="add-btn">${isSelected ? '-' : '+'}</div>
+                    </div>
+                </div>`;
+            }).join('');
+            
+            document.getElementById('p-count').innerText = selectedPlayers.length;
+            document.getElementById('c-left').innerText = creditsLeft.toFixed(1);
+            
+            document.getElementById('btn-next').disabled = selectedPlayers.length !== 11;
+        }
+
+        window.togglePlayer = function(id, credits) {
+            const idx = selectedPlayers.indexOf(id);
+            if (idx > -1) {
+                selectedPlayers.splice(idx, 1);
+                creditsLeft += credits;
+            } else {
+                if (selectedPlayers.length >= 11) {
+                    alert("You can only select 11 players!");
+                    return;
+                }
+                if (creditsLeft - credits < 0) {
+                    alert("Not enough credits!");
+                    return;
+                }
+                selectedPlayers.push(id);
+                creditsLeft -= credits;
+            }
+            renderPlayers();
+        }
+
+        // C/VC Modal logic
+        window.showCVCModal = function() {
+            document.getElementById('cvc-modal').style.display = 'flex';
+            renderCVCList();
+        }
+
+        window.closeCVCModal = function() {
+            document.getElementById('cvc-modal').style.display = 'none';
+        }
+
+        function renderCVCList() {
+            const cvcList = document.getElementById('cvc-list');
+            const teamPlayers = allPlayers.filter(p => selectedPlayers.includes(p.id));
+            
+            cvcList.innerHTML = teamPlayers.map(p => `
+                <div class="cvc-select">
+                    <div style="font-weight: 600;">${p.name} <span class="role-badge">${p.role}</span></div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="cvc-btn ${cId === p.id ? 'c-active' : ''}" onclick="setC(${p.id})">C</button>
+                        <button class="cvc-btn ${vcId === p.id ? 'vc-active' : ''}" onclick="setVC(${p.id})">VC</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('btn-save-team').disabled = !(cId && vcId);
+        }
+
+        window.setC = function(id) {
+            if (vcId === id) vcId = null;
+            cId = id;
+            renderCVCList();
+        }
+
+        window.setVC = function(id) {
+            if (cId === id) cId = null;
+            vcId = id;
+            renderCVCList();
+        }
+
+        window.saveTeam = function() {
+            let teams = getUserTeams();
+            
+            // Check if user already has a team for this match (Demo limits to 1 team for simplicity)
+            const existingTeamIdx = teams.findIndex(t => t.matchId === matchId && t.userId === getCurrentUser().id);
+            
+            const newTeam = {
+                id: generateId(),
+                userId: getCurrentUser().id,
+                matchId: matchId,
+                playerIds: selectedPlayers,
+                captainId: cId,
+                viceCaptainId: vcId,
+                totalPoints: 0 // to be simulated later
+            };
+
+            if (existingTeamIdx > -1) {
+                teams[existingTeamIdx] = newTeam; // Update
+            } else {
+                teams.push(newTeam); // Add
+            }
+
+            localStorage.setItem('user_teams', JSON.stringify(teams));
+            alert("Team saved successfully!");
+            window.location.href = `match.html?id=${matchId}`;
+        }
+
+        // initial render
+        renderPlayers();
+    </script>
+</body>
+</html>

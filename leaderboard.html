@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard | CricFantasy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .podium {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 20px;
+            margin: 60px 0;
+            padding-bottom: 30px;
+        }
+
+        .podium-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .rank-box {
+            width: 110px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(0,0,0,0.8));
+            border: 1px solid var(--border-glass);
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            font-weight: 900;
+            font-family: var(--font-heading);
+            color: var(--text-muted);
+            box-shadow: inset 0 2px 20px rgba(255,255,255,0.05), 0 -10px 30px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .rank-box::after {
+            content: ''; position: absolute; bottom: -20px; left: 10%; width: 80%; height: 20px;
+            background: rgba(0,0,0,0.8); filter: blur(10px); z-index: -1;
+        }
+
+        .podium-1 .rank-box { height: 160px; background: linear-gradient(180deg, rgba(255, 215, 0, 0.2), rgba(0,0,0,0.9)); border-color: rgba(255, 215, 0, 0.5); color: #FFD700; text-shadow: 0 0 20px rgba(255,215,0,0.5); box-shadow: inset 0 2px 20px rgba(255,215,0,0.1), 0 -10px 40px rgba(255,215,0,0.2); }
+        .podium-2 .rank-box { height: 120px; background: linear-gradient(180deg, rgba(192, 192, 192, 0.15), rgba(0,0,0,0.9)); border-color: rgba(192, 192, 192, 0.5); color: #C0C0C0; text-shadow: 0 0 20px rgba(192,192,192,0.5); }
+        .podium-3 .rank-box { height: 90px; background: linear-gradient(180deg, rgba(205, 127, 50, 0.15), rgba(0,0,0,0.9)); border-color: rgba(205, 127, 50, 0.5); color: #CD7F32; text-shadow: 0 0 20px rgba(205,127,50,0.5); }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+            margin-top: 20px;
+        }
+
+        .leaderboard-table th {
+            text-align: left;
+            padding: 16px 24px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .leaderboard-table td {
+            padding: 20px 24px;
+            background: rgba(30, 36, 56, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .leaderboard-table tr td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; border-left: 2px solid transparent; }
+        .leaderboard-table tr td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+
+        .leaderboard-table tr:hover td {
+            background: rgba(30, 36, 56, 0.8);
+            transform: scale(1.01);
+            transition: all 0.2s;
+        }
+        
+        .rank-circle {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.5));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem; font-weight: 800;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container animate-fade-in" style="padding-top: 20px;">
+        <h2 style="text-align: center;">Global Leaderboard (IND vs AUS)</h2>
+        <p style="text-align: center; color: var(--text-secondary);">Demo simulation rankings based on Team Points</p>
+
+        <div id="podium-container" class="podium"></div>
+
+        <div class="glass-card" style="padding: 0; overflow-x: auto;">
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th width="80">Rank</th>
+                        <th>User / Team Name</th>
+                        <th style="text-align: right;">Total Points</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="js/db.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        requireAuth();
+        renderNavbar();
+
+        // For demo, we just get all user_teams for match 1 and rank them.
+        // We'll generate a few mock rival teams if needed, but for now just use existing user_teams.
+        let teams = getUserTeams().filter(t => t.matchId === 1);
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        
+        // Add fake teams if empty to show the UI
+        if (teams.length < 5) {
+            const fakeNames = ["ProGamer", "CricGod", "SmashHits", "Dream11Expert", "GullyBoy"];
+            fakeNames.forEach((name, idx) => {
+                teams.push({
+                    userId: 'fake'+idx,
+                    fakeName: name,
+                    totalPoints: Math.floor(Math.random() * 500) + 300
+                });
+            });
+        }
+        
+        // Ensure points exist
+        teams.forEach(t => {
+            if (!t.totalPoints) t.totalPoints = Math.floor(Math.random() * 500) + 300;
+        });
+
+        // Sort desc
+        teams.sort((a, b) => b.totalPoints - a.totalPoints);
+        
+        // Render Podium (top 3)
+        const podiumContainer = document.getElementById('podium-container');
+        if (teams.length >= 3) {
+            const getUname = (t) => t.fakeName || users.find(u => u.id === t.userId)?.name || "User";
+            podiumContainer.innerHTML = `
+                <div class="podium-item podium-2 animate-fade-in" style="animation-delay: 0.2s;">
+                    <div style="font-weight: 600; margin-bottom: 8px;">${getUname(teams[1])}</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">${teams[1].totalPoints} pts</div>
+                    <div class="rank-box">2</div>
+                </div>
+                <div class="podium-item podium-1 animate-fade-in">
+                    <div style="font-weight: 600; margin-bottom: 8px;">${getUname(teams[0])}</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">${teams[0].totalPoints} pts</div>
+                    <div class="rank-box">1</div>
+                </div>
+                <div class="podium-item podium-3 animate-fade-in" style="animation-delay: 0.4s;">
+                    <div style="font-weight: 600; margin-bottom: 8px;">${getUname(teams[2])}</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">${teams[2].totalPoints} pts</div>
+                    <div class="rank-box">3</div>
+                </div>
+            `;
+        }
+
+        // Render Table
+        const tbody = document.getElementById('leaderboard-body');
+        const currentUser = getCurrentUser();
+        
+        tbody.innerHTML = teams.map((t, index) => {
+            const getUname = (t) => t.fakeName || users.find(u => u.id === t.userId)?.name || "User";
+            const isMe = t.userId === currentUser.id;
+            
+            return `
+            <tr style="${isMe ? 'background: rgba(0, 255, 136, 0.05);' : ''}">
+                <td><div class="rank-circle">${index + 1}</div></td>
+                <td>
+                    <div style="font-weight: 600; color: ${isMe ? 'var(--accent-primary)' : 'var(--text-primary)'}">${getUname(t)} ${isMe ? '(You)' : ''}</div>
+                </td>
+                <td style="text-align: right; font-weight: bold;">${t.totalPoints}</td>
+            </tr>
+            `;
+        }).join('');
+    </script>
+</body>
+</html>

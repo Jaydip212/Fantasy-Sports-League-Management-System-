@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Contests | CricFantasy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .match-banner {
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.15), rgba(112, 0, 255, 0.15));
+            border-radius: var(--radius-lg);
+            padding: 50px 40px;
+            text-align: center;
+            margin: 40px 0;
+            border: 1px solid var(--border-glow);
+            box-shadow: 0 10px 40px rgba(0, 229, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .match-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%);
+            animation: spin 20s linear infinite;
+        }
+        
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .contest-card {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .contest-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 16px;
+        }
+        
+        .contest-pool {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--accent-warning);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 10px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
+            box-shadow: 0 0 10px var(--accent-primary);
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container animate-fade-in">
+        <div id="match-banner-container"></div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2>Available Contests</h2>
+            <div id="team-action-container">
+                <a href="#" id="btn-create-team" class="btn btn-primary">Create Team</a>
+            </div>
+        </div>
+        
+        <div class="grid-2" id="contests-grid">
+            <!-- Contests injected here -->
+        </div>
+    </div>
+
+    <script src="js/db.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        requireAuth();
+        renderNavbar();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const matchId = parseInt(urlParams.get('id'));
+        
+        if (!matchId) window.location.href = 'dashboard.html';
+
+        const match = getMatches().find(m => m.id === matchId);
+        if (!match) window.location.href = 'dashboard.html';
+
+        // The button link logic is handled dynamically below
+
+        // Render Banner
+        document.getElementById('match-banner-container').innerHTML = `
+            <div class="match-banner">
+                <div style="display: flex; justify-content: center; gap: 32px; align-items: center;">
+                    <h2>${match.team1Name}</h2>
+                    <span class="badge badge-upcoming">VS</span>
+                    <h2>${match.team2Name}</h2>
+                </div>
+                <p style="color: var(--text-secondary); margin-top: 12px;">${match.date}</p>
+            </div>
+        `;
+
+        // Render Contests
+        const contests = getContests().filter(c => c.matchId === matchId);
+        const userTeams = getUserTeams().filter(t => t.matchId === matchId && t.userId === getCurrentUser().id);
+        const hasTeam = userTeams.length > 0;
+        
+        if (hasTeam) {
+            document.getElementById('team-action-container').innerHTML = `
+                <span style="color: var(--accent-secondary); margin-right: 12px; font-weight: bold;">Team Created ✅</span>
+                <a href="create-team.html?id=${matchId}" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.85rem;">Edit Team</a>
+            `;
+        } else {
+            document.getElementById('team-action-container').innerHTML = `
+                <a href="create-team.html?id=${matchId}" id="btn-create-team" class="btn btn-primary">Create Team</a>
+            `;
+        }
+
+        const joined = getJoinedContests().filter(c => c.userId === getCurrentUser().id);
+
+        const grid = document.getElementById('contests-grid');
+        grid.innerHTML = contests.map(c => {
+            const pct = (c.filledSpots / c.totalSpots) * 100;
+            const isJoined = joined.some(j => j.contestId === c.id);
+            
+            return `
+            <div class="glass-card contest-card">
+                <div class="contest-header">
+                    <div>
+                        <span style="font-size: 0.85rem; color: var(--text-secondary);">${c.type}</span>
+                        <div class="contest-pool">Prize: ${c.prizePool}</div>
+                    </div>
+                    <div>
+                        <span style="font-size: 0.85rem; color: var(--text-secondary); display:block; text-align:right;">Entry</span>
+                        <button onclick="joinContest(${c.id}, ${c.entryFee})" class="btn ${isJoined ? 'btn-outline' : 'btn-primary'}" style="padding: 6px 16px;" ${isJoined ? 'disabled' : ''}>
+                            ${isJoined ? 'Joined' : `₹${c.entryFee}`}
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-secondary);">
+                        <span>${c.filledSpots} joined</span>
+                        <span>${c.totalSpots} spots</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${pct}%"></div>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+
+        window.joinContest = function(contestId, fee) {
+            if (!hasTeam) {
+                alert("You need to create a team first!");
+                window.location.href = `create-team.html?id=${matchId}`;
+                return;
+            }
+            
+            if (deductBalance(fee)) {
+                let joinedList = getJoinedContests();
+                joinedList.push({
+                    id: generateId(),
+                    userId: getCurrentUser().id,
+                    contestId: contestId,
+                    userTeamId: userTeams[0].id
+                });
+                localStorage.setItem('joined_contests', JSON.stringify(joinedList));
+                
+                // update filled spots demo
+                let allContests = getContests();
+                let cIndex = allContests.findIndex(c => c.id === contestId);
+                allContests[cIndex].filledSpots += 1;
+                localStorage.setItem('contests', JSON.stringify(allContests));
+                
+                alert("Successfully joined contest! Check Leaderboard after match.");
+                window.location.reload();
+            } else {
+                alert("Insufficient Demo Balance! Admin can recharge via Demo.");
+            }
+        }
+    </script>
+</body>
+</html>

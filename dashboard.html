@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | CricFantasy</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .dashboard-header {
+            margin: 40px 0 30px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title::before {
+            content: '';
+            display: block;
+            width: 6px;
+            height: 24px;
+            background: var(--accent-primary);
+            border-radius: 4px;
+            box-shadow: 0 0 10px var(--accent-primary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 50px;
+        }
+        
+        .stat-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 24px 30px;
+            background: linear-gradient(145deg, rgba(30, 36, 56, 0.7), rgba(15, 18, 30, 0.95));
+            border-left: 4px solid var(--accent-primary);
+        }
+        
+        .stat-card:nth-child(2) { border-left-color: var(--accent-secondary); }
+        .stat-card:nth-child(3) { border-left-color: var(--accent-warning); }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: rgba(0, 229, 255, 0.1);
+            color: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: inset 0 0 15px rgba(0,229,255,0.2), 0 0 15px rgba(0,229,255,0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .stat-card:nth-child(2) .stat-icon {
+            background: rgba(112, 0, 255, 0.1);
+            color: var(--accent-secondary);
+            box-shadow: inset 0 0 15px rgba(112,0,255,0.2), 0 0 15px rgba(112,0,255,0.1);
+            animation-delay: 1s;
+        }
+
+        .stat-card:nth-child(3) .stat-icon {
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--accent-warning);
+            box-shadow: inset 0 0 15px rgba(255,215,0,0.2), 0 0 15px rgba(255,215,0,0.1);
+            animation-delay: 2s;
+        }
+        
+        .stat-content h3 {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
+        
+        .stat-content p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar injected via JS -->
+    
+    <div class="container animate-fade-in">
+        <div class="dashboard-header">
+            <div>
+                <h1 id="welcome-text">Welcome back!</h1>
+                <p style="color: var(--text-secondary);">Here's your fantasy activity overview.</p>
+            </div>
+            <a href="admin.html" class="btn btn-outline" style="font-size: 0.8rem; padding: 6px 12px;">Admin Panel (Demo)</a>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="glass-card stat-card">
+                <div class="stat-icon">🪙</div>
+                <div class="stat-content">
+                    <h3 id="stat-wallet">₹0</h3>
+                    <p>Wallet Balance</p>
+                </div>
+            </div>
+            <div class="glass-card stat-card">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-content">
+                    <h3 id="stat-contests">0</h3>
+                    <p>Contests Joined</p>
+                </div>
+            </div>
+            <div class="glass-card stat-card">
+                <div class="stat-icon">📈</div>
+                <div class="stat-content">
+                    <h3 id="stat-points">-</h3>
+                    <p>Last Match Points</p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Upcoming Matches</h2>
+        <div class="grid-3" id="matches-grid">
+            <!-- Matches populated here -->
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/db.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        requireAuth();
+        renderNavbar();
+        
+        const user = getCurrentUser();
+        document.getElementById('welcome-text').innerText = `Welcome back, ${user.name}!`;
+        document.getElementById('stat-wallet').innerText = `₹${user.walletBalance}`;
+        
+        const joined = getJoinedContests().filter(c => c.userId === user.id);
+        document.getElementById('stat-contests').innerText = joined.length;
+        
+        // Demo feature to simulate points so dashboard is lively
+        simulateMatchPoints();
+        
+        const userTeams = getUserTeams().filter(t => t.userId === user.id && t.totalPoints);
+        if (userTeams.length > 0) {
+            document.getElementById('stat-points').innerText = `${userTeams[userTeams.length-1].totalPoints} pts`;
+        }
+
+        // Render Upcomign Matches
+        const matchesGrid = document.getElementById('matches-grid');
+        const matches = getMatches();
+        
+        matchesGrid.innerHTML = matches.map(match => `
+            <a href="match.html?id=${match.id}" class="glass-card match-card">
+                <div class="match-header">
+                    ${match.status === 'upcoming' ? '<span class="badge badge-upcoming">Upcoming</span>' : '<span class="badge badge-live">Live</span>'}
+                </div>
+                <div class="match-teams">
+                    <div class="team">
+                        <div class="team-logo">${match.team1}</div>
+                        <span style="font-size: 0.85rem; font-weight: 600; margin-top: 8px;">${match.team1Name}</span>
+                    </div>
+                    <div class="vs">VS</div>
+                    <div class="team">
+                        <div class="team-logo">${match.team2}</div>
+                        <span style="font-size: 0.85rem; font-weight: 600; margin-top: 8px;">${match.team2Name}</span>
+                    </div>
+                </div>
+                <div class="match-footer">
+                    <span style="font-size: 0.85rem; color: var(--text-secondary);">${match.date}</span>
+                    <button class="btn btn-outline" style="padding: 6px 16px; font-size: 0.85rem;">View</button>
+                </div>
+            </a>
+        `).join('');
+    </script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results | CricFantasy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .result-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .match-score {
+            text-align: center;
+            font-family: 'Outfit';
+            font-weight: 800;
+            font-size: 2.2rem;
+            background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .result-badge {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container animate-fade-in" style="padding-top: 30px;">
+        <h2 style="margin-bottom: 24px;">Completed Matches</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 30px;">View final scores for matches that have been simulated and completed.</p>
+
+        <div id="results-container">
+            <!-- Results injected here -->
+        </div>
+    </div>
+
+    <script src="js/db.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        requireAuth();
+        renderNavbar();
+
+        function loadResults() {
+            let container = document.getElementById('results-container');
+            let user = getCurrentUser();
+            let teams = getUserTeams().filter(t => t.userId === user.id && t.totalPoints);
+            let matches = getMatches();
+
+            if (teams.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding: 40px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1);">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">📊</div>
+                        <h3 style="color: var(--text-secondary);">No completed matches yet.</h3>
+                        <p style="font-size: 0.9rem; margin-top: 10px; color: rgba(255,255,255,0.4);">Join contests and wait for the Admin to simulate results!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            teams.forEach(team => {
+                let match = matches.find(m => m.id === team.matchId);
+                if(match) {
+                    html += `
+                        <div class="glass-card result-card">
+                            <div>
+                                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+                                    <div class="result-badge">Match Finalised</div>
+                                </div>
+                                <div style="display: flex; gap: 15px; align-items: center;">
+                                    <div style="font-weight: 600; font-size: 1.2rem;">${match.team1} vs ${match.team2}</div>
+                                </div>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 5px;">Team created: ${new Date(Number(team.id)).toLocaleDateString()}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div class="match-score">${team.totalPoints}</div>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary); text-transform:uppercase;">Total Points</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            container.innerHTML = html;
+        }
+
+        loadResults();
+    </script>
+</body>
+</html>
