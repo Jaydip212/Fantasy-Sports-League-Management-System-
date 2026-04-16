@@ -60,15 +60,65 @@ const initialData = {
         { id: 2009, matchId: 1, name: "G. Coetzee", team: "MI", role: "BOWL", credits: 8.5, form: "8.7" },
         { id: 2010, matchId: 1, name: "P. Chawla", team: "MI", role: "BOWL", credits: 8.0, form: "8.0" },
         { id: 2011, matchId: 1, name: "A. Madhwal", team: "MI", role: "BOWL", credits: 8.0, form: "7.9" },
+
+        // RCB vs KKR Match Players (Match 2)
+        { id: 3001, matchId: 2, name: "V. Kohli", team: "RCB", role: "BAT", credits: 10.0, form: "9.5" },
+        { id: 3002, matchId: 2, name: "F. du Plessis", team: "RCB", role: "BAT", credits: 9.0, form: "8.5" },
+        { id: 3003, matchId: 2, name: "G. Maxwell", team: "RCB", role: "AR", credits: 9.5, form: "8.0" },
+        { id: 3004, matchId: 2, name: "C. Green", team: "RCB", role: "AR", credits: 9.0, form: "8.5" },
+        { id: 3005, matchId: 2, name: "D. Karthik", team: "RCB", role: "WK", credits: 8.5, form: "9.0" },
+        { id: 3006, matchId: 2, name: "R. Patidar", team: "RCB", role: "BAT", credits: 8.0, form: "8.8" },
+        { id: 3007, matchId: 2, name: "M. Siraj", team: "RCB", role: "BOWL", credits: 9.0, form: "8.2" },
+        { id: 3008, matchId: 2, name: "Y. Dayal", team: "RCB", role: "BOWL", credits: 8.0, form: "7.9" },
+        { id: 3009, matchId: 2, name: "L. Ferguson", team: "RCB", role: "BOWL", credits: 8.5, form: "8.0" },
+        { id: 3010, matchId: 2, name: "K. Sharma", team: "RCB", role: "BOWL", credits: 8.0, form: "7.5" },
+        { id: 3011, matchId: 2, name: "W. Jacks", team: "RCB", role: "AR", credits: 8.5, form: "8.7" },
+        
+        { id: 4001, matchId: 2, name: "S. Narine", team: "KKR", role: "AR", credits: 9.5, form: "9.8" },
+        { id: 4002, matchId: 2, name: "P. Salt", team: "KKR", role: "WK", credits: 9.0, form: "9.2" },
+        { id: 4003, matchId: 2, name: "S. Iyer", team: "KKR", role: "BAT", credits: 9.0, form: "8.5" },
+        { id: 4004, matchId: 2, name: "A. Russell", team: "KKR", role: "AR", credits: 9.5, form: "9.0" },
+        { id: 4005, matchId: 2, name: "R. Singh", team: "KKR", role: "BAT", credits: 8.5, form: "8.8" },
+        { id: 4006, matchId: 2, name: "V. Iyer", team: "KKR", role: "BAT", credits: 8.5, form: "8.2" },
+        { id: 4007, matchId: 2, name: "M. Starc", team: "KKR", role: "BOWL", credits: 9.0, form: "8.4" },
+        { id: 4008, matchId: 2, name: "V. Chakravarthy", team: "KKR", role: "BOWL", credits: 8.5, form: "8.9" },
+        { id: 4009, matchId: 2, name: "H. Rana", team: "KKR", role: "BOWL", credits: 8.0, form: "8.5" },
+        { id: 4010, matchId: 2, name: "S. Sharma", team: "KKR", role: "BOWL", credits: 8.0, form: "7.8" },
+        { id: 4011, matchId: 2, name: "A. Raghuvanshi", team: "KKR", role: "BAT", credits: 7.5, form: "8.0" },
+
+        // RR vs SRH Match Players (Match 3)
+        { id: 5001, matchId: 3, name: "S. Samson", team: "RR", role: "WK", credits: 9.5, form: "9.2" },
+        { id: 5002, matchId: 3, name: "J. Buttler", team: "RR", role: "WK", credits: 10.0, form: "9.0" },
+        { id: 5003, matchId: 3, name: "Y. Jaiswal", team: "RR", role: "BAT", credits: 9.0, form: "8.5" },
+        { id: 5004, matchId: 3, name: "R. Parag", team: "RR", role: "AR", credits: 8.5, form: "9.5" },
+        { id: 5005, matchId: 3, name: "R. Powell", team: "RR", role: "BAT", credits: 8.5, form: "8.0" },
+        { id: 5006, matchId: 3, name: "S. Hetmyer", team: "RR", role: "BAT", credits: 8.0, form: "8.2" },
+        { id: 5007, matchId: 3, name: "R. Ashwin", team: "RR", role: "AR", credits: 8.5, form: "8.0" },
+        { id: 5008, matchId: 3, name: "Y. Chahal", team: "RR", role: "BOWL", credits: 9.0, form: "9.0" },
+        { id: 5009, matchId: 3, name: "T. Boult", team: "RR", role: "BOWL", credits: 9.0, form: "8.8" },
+        { id: 5010, matchId: 3, name: "S. Sharma", team: "RR", role: "BOWL", credits: 8.5, form: "8.5" },
+        { id: 5011, matchId: 3, name: "A. Khan", team: "RR", role: "BOWL", credits: 8.0, form: "8.0" },
+
+        { id: 6001, matchId: 3, name: "T. Head", team: "SRH", role: "BAT", credits: 9.5, form: "9.8" },
+        { id: 6002, matchId: 3, name: "A. Sharma", team: "SRH", role: "BAT", credits: 8.5, form: "9.5" },
+        { id: 6003, matchId: 3, name: "H. Klaasen", team: "SRH", role: "WK", credits: 9.5, form: "9.6" },
+        { id: 6004, matchId: 3, name: "A. Markram", team: "SRH", role: "AR", credits: 9.0, form: "8.5" },
+        { id: 6005, matchId: 3, name: "N. Reddy", team: "SRH", role: "AR", credits: 8.0, form: "8.8" },
+        { id: 6006, matchId: 3, name: "A. Samad", team: "SRH", role: "BAT", credits: 8.0, form: "8.0" },
+        { id: 6007, matchId: 3, name: "P. Cummins", team: "SRH", role: "AR", credits: 9.0, form: "9.0" },
+        { id: 6008, matchId: 3, name: "B. Kumar", team: "SRH", role: "BOWL", credits: 8.5, form: "8.4" },
+        { id: 6009, matchId: 3, name: "T. Natarajan", team: "SRH", role: "BOWL", credits: 8.5, form: "8.9" },
+        { id: 6010, matchId: 3, name: "J. Unadkat", team: "SRH", role: "BOWL", credits: 8.0, form: "8.0" },
+        { id: 6011, matchId: 3, name: "M. Markande", team: "SRH", role: "BOWL", credits: 8.0, form: "7.8" }
     ]
 };
 
 // Seed LocalStorage
 function initDB() {
     // Auto-wipe everything if the user was on the old International data
-    if (!localStorage.getItem('is_ipl_loaded')) {
+    if (!localStorage.getItem('is_ipl_loaded_v2')) {
         localStorage.clear();
-        localStorage.setItem('is_ipl_loaded', 'true');
+        localStorage.setItem('is_ipl_loaded_v2', 'true');
     }
 
     if (!localStorage.getItem('matches')) {
