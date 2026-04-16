@@ -90,11 +90,18 @@
             </div>
         </div>
 
-        <div style="text-align: center; margin-top: 40px;">
+        <h3 style="margin-bottom: 16px;">Winnings Performance</h3>
+        <div class="glass-card" style="padding: 20px; text-align: center; margin-bottom: 30px; position:relative; height: 300px; width:100%;">
+            <canvas id="winningsChart"></canvas>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
             <button class="btn btn-outline" style="border-color: var(--accent-danger); color: var(--accent-danger);" onclick="resetSystem()">Danger: Reset My Account</button>
         </div>
     </div>
 
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/db.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/app.js"></script>
@@ -120,6 +127,68 @@
 
             let totalPts = teams.reduce((sum, t) => sum + (t.totalPoints || 0), 0);
             document.getElementById('stat-points').innerText = totalPts;
+            
+            // Build Chart
+            renderChart(txs);
+        }
+
+        function renderChart(winningsTxs) {
+            const ctx = document.getElementById('winningsChart').getContext('2d');
+            
+            // Generate Data
+            // We want to show a cumulative winnings line
+            let labels = ['Start'];
+            let data = [0];
+            let cumulative = 0;
+            
+            winningsTxs.forEach((tx, idx) => {
+                labels.push('Match ' + (idx + 1));
+                cumulative += parseInt(tx.amount);
+                data.push(cumulative);
+            });
+            
+            // If they have no wins, just show a blank line
+            if (data.length === 1) {
+                labels.push('Now');
+                data.push(0);
+            }
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Winnings (₹)',
+                        data: data,
+                        borderColor: '#00e5ff',
+                        backgroundColor: 'rgba(0, 229, 255, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#00e5ff',
+                        pointBorderColor: '#fff',
+                        pointRadius: 5,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: { color: 'rgba(255,255,255,0.7)' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: 'rgba(255,255,255,0.5)' }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: 'rgba(255,255,255,0.5)' }
+                        }
+                    }
+                }
+            });
         }
 
         function resetSystem() {

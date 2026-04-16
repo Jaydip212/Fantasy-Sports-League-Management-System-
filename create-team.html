@@ -158,6 +158,33 @@
         .cvc-btn.c-active { background: var(--accent-warning); color: #000; border-color: var(--accent-warning); }
         .cvc-btn.vc-active { background: var(--accent-secondary); color: #000; border-color: var(--accent-secondary); }
 
+        .role-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .role-tab {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .role-tab.active {
+            background: rgba(0, 229, 255, 0.1);
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -175,6 +202,14 @@
                 <strong><span id="c-left">100</span></strong>
             </div>
             <button id="btn-next" class="btn btn-primary" onclick="showCVCModal()" disabled>Next</button>
+        </div>
+
+        <div class="role-tabs">
+            <div class="role-tab active" onclick="setFilter('ALL')">ALL</div>
+            <div class="role-tab" onclick="setFilter('WK')">WK</div>
+            <div class="role-tab" onclick="setFilter('BAT')">BAT</div>
+            <div class="role-tab" onclick="setFilter('AR')">AR</div>
+            <div class="role-tab" onclick="setFilter('BOWL')">BOWL</div>
         </div>
 
         <div id="players-list"></div>
@@ -221,9 +256,14 @@
             creditsLeft = 100.0 - spent;
         }
 
+        let currentFilter = 'ALL';
+
         function renderPlayers() {
             const list = document.getElementById('players-list');
-            list.innerHTML = allPlayers.map(p => {
+            
+            const filteredPlayers = allPlayers.filter(p => currentFilter === 'ALL' || p.role === currentFilter);
+            
+            list.innerHTML = filteredPlayers.map(p => {
                 const isSelected = selectedPlayers.includes(p.id);
                 return `
                 <div class="player-row ${isSelected ? 'selected' : ''}" onclick="togglePlayer(${p.id}, ${p.credits})">
@@ -250,6 +290,15 @@
             document.getElementById('c-left').innerText = creditsLeft.toFixed(1);
             
             document.getElementById('btn-next').disabled = selectedPlayers.length !== 11;
+        }
+
+        window.setFilter = function(role) {
+            currentFilter = role;
+            document.querySelectorAll('.role-tab').forEach(t => {
+                if(t.innerText === role) t.classList.add('active');
+                else t.classList.remove('active');
+            });
+            renderPlayers();
         }
 
         window.togglePlayer = function(id, credits) {
