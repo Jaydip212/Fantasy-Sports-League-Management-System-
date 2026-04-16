@@ -83,6 +83,7 @@ button {
 
 .text-gradient {
     background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.2));
